@@ -211,6 +211,21 @@
             .app { height: 100vh; max-height: none; border-radius: 0; }
             .nav { border-radius: 0; }
         }
+
+        /* Spinner used on action buttons while loading */
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-top: 3px solid var(--cor-primaria);
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -408,7 +423,8 @@
 
 <script>
     // URL do seu Apps Script único. Altere para o link do novo script quando publicar.
-    const URL_APP = 'https://script.google.com/macros/s/AKfycbyhVRp0mnWfxH8pCx3RAp2JMxxUG4dG42_yFsulXj5iTXkQeu-s2ern9_kVpl55Xwh3Yw/exec';
+    // Atualizado para a nova URL do Apps Script fornecida pelo usuário
+    const URL_APP = 'https://script.google.com/macros/s/AKfycbyXNYfvmfgPtES5VnVLcJQoDULYAurRzme05PZjDHhFC1wFksygffjhoVY6dCBkOaoR9w/exec';
 
     // Função para obter o mês em português a partir de um objeto Date
     const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
@@ -548,7 +564,8 @@
         document.getElementById('c-cliente').value = data.cliente;
         document.getElementById('c-local').value = data.local;
         document.getElementById('c-material').value = data.material;
-        document.getElementById('c-valor').value = data.valorcomissao;
+        // valorComissao pode vir em camelCase ou tudo minúsculo, pegar o que existir
+        document.getElementById('c-valor').value = data.valorComissao !== undefined ? data.valorComissao : data.valorcomissao;
         document.getElementById('c-vendedor').value = data.vendedor;
         document.getElementById('c-status').value = data.status;
         document.querySelector('.nav-item[data-sec="comissoes"]').click();
@@ -586,6 +603,10 @@
         const listContainer = document.getElementById('list-consultas');
         const summaryContainer = document.getElementById('summary-container');
         let selectedMonth = document.getElementById('month-filter').value;
+        // mostra spinner no botão de busca
+        const btn = document.getElementById('btn-fetch-entregues');
+        showLoading(btn);
+        // reseta lista e sumário
         listContainer.innerHTML = '<p>Buscando entregas...</p>';
         summaryContainer.innerHTML = '';
         try {
@@ -599,6 +620,8 @@
             if (data.error) throw new Error(data.error);
             if (!data || data.length === 0) {
                 listContainer.innerHTML = '<p>Nenhuma entrega encontrada para este mês.</p>';
+                // esconde spinner antes de sair
+                hideLoading(btn);
                 return;
             }
             listContainer.innerHTML = data.map(e => {
@@ -619,9 +642,13 @@
                             </div>
                         </div>`;
             }).join('');
+            // esconde spinner após finalizar
+            hideLoading(btn);
         } catch (error) {
             listContainer.innerHTML = `<p style="color: red;">Erro: ${error.message}</p>`;
             toast('Erro ao buscar entregas', true);
+            // esconde spinner em caso de erro
+            hideLoading(btn);
         }
     }
 
@@ -688,10 +715,18 @@
         const listContainer = document.getElementById('list-consultas');
         const startDate = document.getElementById('abast-start-date').value;
         const endDate = document.getElementById('abast-end-date').value;
+        // botão de busca de abastecimentos
+        const btn = document.getElementById('btn-fetch-abastecimentos');
+        // mostra spinner
+        showLoading(btn);
         if (!startDate || !endDate) {
             toast('Selecione data de início e fim.', true);
+            // esconde spinner se datas não selecionadas
+            hideLoading(btn);
             return;
         }
+        // limpar sumário quando trocando para abastecimentos
+        document.getElementById('summary-container').innerHTML = '';
         listContainer.innerHTML = '<p>Buscando abastecimentos...</p>';
         try {
             const url = `${getAppUrl('getAbastecimentos')}?action=getAbastecimentos&startDate=${startDate}&endDate=${endDate}`;
@@ -701,6 +736,8 @@
             if (data.error) throw new Error(data.error);
             if (!data || data.length === 0) {
                 listContainer.innerHTML = '<p>Nenhum abastecimento encontrado.</p>';
+                // esconde spinner antes de retornar
+                hideLoading(btn);
                 return;
             }
             listContainer.innerHTML = data.map(a => {
@@ -723,9 +760,13 @@
                             </div>
                         </div>`;
             }).join('');
+            // esconde spinner após concluir
+            hideLoading(btn);
         } catch (error) {
             listContainer.innerHTML = `<p style="color: red;">Erro: ${error.message}</p>`;
             toast('Erro ao buscar abastecimentos', true);
+            // esconde spinner em caso de erro
+            hideLoading(btn);
         }
     }
 
@@ -737,8 +778,14 @@
         const startDate = document.getElementById('comissao-start-date').value;
         const endDate = document.getElementById('comissao-end-date').value;
         const vendedor = document.getElementById('comissao-vendedor-filter').value;
+        // botão de busca de comissões
+        const btn = document.getElementById('btn-fetch-comissoes');
+        // mostra spinner
+        showLoading(btn);
         if (!startDate || !endDate) {
             toast('Selecione o período.', true);
+            // esconde spinner se não houver datas
+            hideLoading(btn);
             return;
         }
         listContainer.innerHTML = '<p>Buscando comissões...</p>';
@@ -751,18 +798,24 @@
             if (data.error) throw new Error(data.error);
             if (!data || data.length === 0) {
                 listContainer.innerHTML = '<p>Nenhuma comissão encontrada.</p>';
+                // esconde spinner antes de retornar
+                hideLoading(btn);
                 return;
             }
             // calcular total de comissões
             const totalComissao = data.reduce((sum, item) => {
-                const valorStr = String(item.valorcomissao || '0').replace(/\./g, '').replace(',', '.');
+                // Suporta camelCase (valorComissao) e minúsculo (valorcomissao)
+                const rawValor = item.valorComissao !== undefined ? item.valorComissao : item.valorcomissao;
+                const valorStr = String(rawValor || 0).replace(/\./g, '').replace(',', '.');
                 return sum + parseFloat(valorStr);
             }, 0);
             const totalFormatado = totalComissao.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
             summaryContainer.innerHTML = `<div class="card summary-card"><div class="card-row"><span>Total de Comissões:</span><span>${totalFormatado}</span></div></div>`;
             listContainer.innerHTML = data.map(c => {
                 const dataComissao = new Date(c.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
-                const valorStr = String(c.valorcomissao || '0').replace(/\./g, '').replace(',', '.');
+                // Pegar valorComissao camelCase ou minúsculo
+                const rawValor = c.valorComissao !== undefined ? c.valorComissao : c.valorcomissao;
+                const valorStr = String(rawValor || 0).replace(/\./g, '').replace(',', '.');
                 const valorComissao = parseFloat(valorStr).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
                 const statusClass = c.status.toLowerCase() === 'pago' ? 'badge-pago' : 'badge-pendente';
                 const comissaoJson = JSON.stringify(c).replace(/"/g, '&quot;');
@@ -778,9 +831,35 @@
                             </div>
                         </div>`;
             }).join('');
+            // esconde spinner após concluir
+            hideLoading(btn);
         } catch (error) {
             listContainer.innerHTML = `<p style="color:red;">Erro: ${error.message}</p>`;
             toast('Erro ao buscar comissões', true);
+            // esconde spinner em caso de erro
+            hideLoading(btn);
+        }
+    }
+
+    // Helpers para exibir/hide spinner nos botões
+    function showLoading(btn) {
+        if (!btn) return;
+        // Salva o conteúdo original para restaurar depois
+        if (!btn.dataset.originalContent) {
+            btn.dataset.originalContent = btn.innerHTML;
+        }
+        btn.disabled = true;
+        btn.innerHTML = '';
+        const sp = document.createElement('div');
+        sp.className = 'spinner';
+        btn.appendChild(sp);
+    }
+
+    function hideLoading(btn) {
+        if (!btn) return;
+        btn.disabled = false;
+        if (btn.dataset.originalContent) {
+            btn.innerHTML = btn.dataset.originalContent;
         }
     }
 
@@ -803,7 +882,12 @@
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                 document.getElementById('sec-' + sec).classList.add('active');
                 if (sec === 'consultas') {
+                    // ao entrar em consultas, seleciona entregues por padrão
                     document.getElementById('btn-select-entregues').click();
+                } else {
+                    // ao sair de consultas, limpar listagens e resumos
+                    document.getElementById('list-consultas').innerHTML = '';
+                    document.getElementById('summary-container').innerHTML = '';
                 }
             });
         });
