@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vantal Construção</title>
-    <!-- Google fonts and Font‑Awesome icons -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -232,7 +231,6 @@
 <div class="app">
     <div class="header"><i class="fas fa-truck"></i> Vantal Construção</div>
     <div class="content">
-        <!-- Seletor de caminhão -->
         <div class="field">
             <label for="truck">Selecione o Caminhão</label>
             <select id="truck">
@@ -241,7 +239,6 @@
             </select>
         </div>
 
-        <!-- Seção de Vendas -->
         <div id="sec-vendas" class="section active">
             <h2 class="form-title" id="venda-form-title">Registro de Venda</h2>
             <form id="form-vendas">
@@ -273,22 +270,14 @@
                 </div>
                 <div class="row">
                     <div class="field">
-                        <label>Diesel Gasto</label>
-                        <input type="number" id="v-diesel" step="0.01">
+                        <label>Fornecedor</label>
+                        <select id="v-fornecedor" required>
+                            <option value="">Carregando...</option>
+                        </select>
                     </div>
                     <div class="field">
-                        <label>Carregamento</label>
-                        <input type="number" id="v-carga" step="0.01">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="field">
-                        <label>Gasto Extra</label>
-                        <input type="number" id="v-extra" step="0.01">
-                    </div>
-                    <div class="field">
-                        <label>Descrição Despesas</label>
-                        <input type="text" id="v-desc">
+                        <label>Carradas</label>
+                        <input type="number" id="v-carradas" step="0.01" required>
                     </div>
                 </div>
                 <div class="row">
@@ -314,7 +303,6 @@
             </form>
         </div>
 
-        <!-- Seção de Abastecimento -->
         <div id="sec-abastecimento" class="section">
             <h2 class="form-title" id="abast-form-title">Registro de Abastecimento</h2>
             <form id="form-abastecimento">
@@ -332,14 +320,12 @@
             </form>
         </div>
 
-        <!-- Seção de Consultas -->
         <div id="sec-consultas" class="section">
             <div class="consulta-selector">
                 <button id="btn-select-entregues" class="btn-selector active">Entregues</button>
                 <button id="btn-select-abastecimentos" class="btn-selector">Abastecimentos</button>
                 <button id="btn-select-comissoes" class="btn-selector">Comissões</button>
             </div>
-            <!-- Filtros para Entregues -->
             <div id="filtros-entregues" class="filter-container">
                 <div class="filter-bar">
                     <div class="field">
@@ -352,7 +338,6 @@
                     <button id="btn-fetch-entregues" class="btn btn-venda">Buscar</button>
                 </div>
             </div>
-            <!-- Filtros para Abastecimentos -->
             <div id="filtros-abastecimentos" class="filter-container" style="display:none;">
                 <div class="filter-bar">
                     <div class="field"><label for="abast-start-date">De:</label><input type="date" id="abast-start-date"></div>
@@ -360,7 +345,6 @@
                     <button id="btn-fetch-abastecimentos" class="btn btn-abastecimento">Buscar</button>
                 </div>
             </div>
-            <!-- Filtros para Comissões -->
             <div id="filtros-comissoes" class="filter-container" style="display:none;">
                 <div class="filter-bar">
                     <div class="field"><label for="comissao-start-date">De:</label><input type="date" id="comissao-start-date"></div>
@@ -386,7 +370,6 @@
             <div id="list-consultas"></div>
         </div>
 
-        <!-- Seção de Comissões (formulário de comissão de vendedor) -->
         <div id="sec-comissoes" class="section">
             <h2 class="form-title" id="comissao-form-title">Registro de Comissão (Vendedor)</h2>
             <form id="form-comissao">
@@ -410,21 +393,65 @@
                 <button type="button" class="btn" style="background:#777; margin-top:8px; display:none;" id="btn-cancelar-edicao-comissao">Cancelar Edição</button>
             </form>
         </div>
-    </div> <!-- content -->
-    <!-- Barra de navegação inferior -->
-    <div class="nav">
+
+        <div id="sec-carradas" class="section">
+            <h2 class="form-title">Controle de Carradas</h2>
+            <div class="consulta-selector">
+                <button id="btn-select-estoque-carradas" class="btn-selector active">Estoque</button>
+                <button id="btn-select-extrato-carradas" class="btn-selector">Extrato</button>
+                <button id="btn-select-retirada-manual" class="btn-selector">Retirada Manual</button>
+            <button id="btn-select-adicionar-saldo" class="btn-selector">Adicionar Saldo</button>
+            </div>
+            <div id="estoque-carradas-container" class="filter-container">
+                <button id="btn-fetch-estoque-carradas" class="btn btn-venda">Carregar Estoque</button>
+            </div>
+            <div id="filtros-extrato-carradas" class="filter-container" style="display:none;">
+                <div class="filter-bar">
+                    <div class="field"><label for="extrato-start-date">De:</label><input type="date" id="extrato-start-date"></div>
+                    <div class="field"><label for="extrato-end-date">Até:</label><input type="date" id="extrato-end-date"></div>
+                    <div class="field">
+                        <label for="extrato-fornecedor-filter">Fornecedor</label>
+                        <select id="extrato-fornecedor-filter"><option value="TODOS">Todos</option></select>
+                    </div>
+                    <button id="btn-fetch-extrato-carradas" class="btn btn-abastecimento">Buscar</button>
+                </div>
+            </div>
+            <div id="form-retirada-carradas" style="display:none;">
+                <form id="retirada-carradas-form">
+                    <div class="field"><label>Data</label><input type="date" id="retirada-data" required></div>
+                    <div class="field"><label>Fornecedor</label><select id="retirada-fornecedor" required><option value="">Carregando...</option></select></div>
+                    <div class="field"><label>Material</label><select id="retirada-material" required><option value="">Carregando...</option></select></div>
+                    <div class="field"><label>Carradas</label><input type="number" id="retirada-carradas" step="0.01" required></div>
+                    <div class="field"><label>Motorista</label><select id="retirada-motorista" required><option value="">Carregando...</option></select></div>
+                    <button type="submit" class="btn btn-comissao">Registrar Retirada</button>
+                </form>
+            </div>
+
+            <div id="form-adicionar-saldo" style="display:none;">
+                <form id="adicionar-saldo-form">
+                    <div class="field"><label>Data</label><input type="date" id="entrada-data" required></div>
+                    <div class="field"><label>Fornecedor</label><select id="entrada-fornecedor" required><option value="">Carregando...</option></select></div>
+                    <div class="field"><label>Material</label><select id="entrada-material" required><option value="">Carregando...</option></select></div>
+                    <div class="field"><label>Carradas</label><input type="number" id="entrada-carradas" step="0.01" required></div>
+                    <button type="submit" class="btn btn-venda">Adicionar Saldo</button>
+                </form>
+            </div>
+            <div id="list-carradas"></div>
+        </div>
+    </div> <div class="nav">
         <div class="nav-item active" data-sec="vendas"><i class="fas fa-shopping-cart"></i><span>Vendas</span></div>
         <div class="nav-item" data-sec="abastecimento"><i class="fas fa-gas-pump"></i><span>Abastecer</span></div>
         <div class="nav-item" data-sec="consultas"><i class="fas fa-search"></i><span>Consultas</span></div>
         <div class="nav-item" data-sec="comissoes"><i class="fas fa-hand-holding-usd"></i><span>Comissão</span></div>
+        <div class="nav-item" data-sec="carradas"><i class="fas fa-box-open"></i><span>Carradas</span></div>
     </div>
     <div id="toast" class="toast"></div>
-</div> <!-- app -->
-
-<script>
+</div> <script>
     // URL do seu Apps Script único. Altere para o link do novo script quando publicar.
     // Atualizado para a nova URL do Apps Script fornecida pelo usuário
-    const URL_APP = 'https://script.google.com/macros/s/AKfycbyXNYfvmfgPtES5VnVLcJQoDULYAurRzme05PZjDHhFC1wFksygffjhoVY6dCBkOaoR9w/exec';
+    // Atualizado para a nova URL do Apps Script fornecida pelo usuário
+    // URL do Apps Script atualizada conforme solicitado pelo usuário
+    const URL_APP = 'https://script.google.com/macros/s/AKfycbzI9EKJsrnUfM16osdvZWeVJp1Y6jCTXS-PEvQzcf6JOgfX6NOYS8q2Oh88F4qyYmpVAw/exec';
 
     // Função para obter o mês em português a partir de um objeto Date
     const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
@@ -463,10 +490,9 @@
         document.getElementById('v-cliente').value = data.cliente;
         document.getElementById('v-valor').value = data.valorVendido;
         document.getElementById('v-material').value = data.material;
-        document.getElementById('v-diesel').value = data.valorDieselGasto;
-        document.getElementById('v-carga').value = data.valorParaEncher;
-        document.getElementById('v-extra').value = data.gastoExtra;
-        document.getElementById('v-desc').value = data.descricaoDespesas;
+        // Preencher fornecedor e carradas
+        if (data.fornecedor) document.getElementById('v-fornecedor').value = data.fornecedor;
+        if (data.carradas !== undefined) document.getElementById('v-carradas').value = data.carradas;
         document.getElementById('v-motorista').value = data.motorista;
         document.getElementById('v-comissao').value = data.valorComissao;
         document.getElementById('v-status-venda').value = data.statusVenda;
@@ -500,6 +526,9 @@
         document.getElementById('form-vendas').reset();
         document.getElementById('v-row-number').value = '';
         document.getElementById('v-data-cadastro').value = '';
+        // Resetar seletor de fornecedor e motorista
+        if (document.getElementById('v-fornecedor')) document.getElementById('v-fornecedor').value = '';
+        if (document.getElementById('v-carradas')) document.getElementById('v-carradas').value = '';
         document.getElementById('venda-form-title').textContent = 'Registro de Venda';
         document.getElementById('btn-gravar-venda').textContent = 'Gravar Venda';
         document.getElementById('btn-cancelar-edicao-venda').style.display = 'none';
@@ -633,6 +662,8 @@
                 return `<div class="card">
                             <div class="card-header"><div class="card-title">${e.cliente}</div><div class="card-date">${dataVenda}</div></div>
                             <div class="card-row"><span class="card-label">Cidade:</span><span>${e.cidade}</span></div>
+                            <div class="card-row"><span class="card-label">Fornecedor:</span><span>${e.fornecedor || '-'}</span></div>
+                            <div class="card-row"><span class="card-label">Carradas:</span><span>${e.carradas || 0}</span></div>
                             <div class="card-row"><span class="card-label">Motorista:</span><span>${e.motorista || '-'}</span></div>
                             <div class="card-row"><span class="card-label">Valor:</span><span>${valorVendido}</span></div>
                             <div class="card-row"><span class="card-label">Status:</span><span class="badge badge-${statusClass}">${e.statusVenda}</span></div>
@@ -672,6 +703,19 @@
                     selectMotorista.appendChild(option);
                 }
             });
+            // Preencher select de motorista para retirada manual, se existir
+            const selectRetMotorista = document.getElementById('retirada-motorista');
+            if (selectRetMotorista) {
+                selectRetMotorista.innerHTML = '<option value="">Selecione um motorista</option>';
+                data.forEach(nome => {
+                    if (nome) {
+                        const opt = document.createElement('option');
+                        opt.value = nome;
+                        opt.textContent = nome;
+                        selectRetMotorista.appendChild(opt);
+                    }
+                });
+            }
         } catch (error) {
             selectMotorista.innerHTML = '<option value="">Erro ao carregar</option>';
             toast(`Erro motoristas: ${error.message}`, true);
@@ -708,6 +752,84 @@
             toast(`Erro ao carregar vendedores: ${error.message}`, true);
             selectVendedorForm.innerHTML = '<option value="">Erro ao carregar</option>';
         }
+    }
+
+    // Função para buscar fornecedores disponíveis (para vendas, extrato e retirada)
+    async function fetchFornecedores() {
+        const selectForVenda = document.getElementById('v-fornecedor');
+        const selectForRet = document.getElementById('retirada-fornecedor');
+        const selectForFiltro = document.getElementById('extrato-fornecedor-filter');
+        const selectForEntrada = document.getElementById('entrada-fornecedor'); // Adicionado
+        if (selectForVenda) selectForVenda.innerHTML = '<option value="">Carregando...</option>';
+        if (selectForRet) selectForRet.innerHTML = '<option value="">Carregando...</option>';
+        if (selectForFiltro) selectForFiltro.innerHTML = '<option value="TODOS">Carregando...</option>';
+        if (selectForEntrada) selectForEntrada.innerHTML = '<option value="">Carregando...</option>'; // Adicionado
+
+        try {
+            const url = `${getAppUrl('getFornecedores')}?action=getFornecedores`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Erro de rede.');
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
+            
+            const populateSelect = (selectElem, defaultOption) => {
+                if (!selectElem) return;
+                selectElem.innerHTML = defaultOption;
+                 data.forEach(nome => {
+                    if (nome) {
+                        const option = document.createElement('option');
+                        option.value = nome;
+                        option.textContent = nome;
+                        selectElem.appendChild(option);
+                    }
+                });
+            }
+
+            populateSelect(selectForVenda, '<option value="">Selecione um fornecedor</option>');
+            populateSelect(selectForRet, '<option value="">Selecione um fornecedor</option>');
+            populateSelect(selectForFiltro, '<option value="TODOS">Todos</option>');
+            populateSelect(selectForEntrada, '<option value="">Selecione um fornecedor</option>'); // Adicionado
+
+        } catch (error) {
+            toast(`Erro ao carregar fornecedores: ${error.message}`, true);
+            if (selectForVenda) selectForVenda.innerHTML = '<option value="">Erro</option>';
+            if (selectForRet) selectForRet.innerHTML = '<option value="">Erro</option>';
+            if (selectForFiltro) selectForFiltro.innerHTML = '<option value="TODOS">Erro</option>';
+            if (selectForEntrada) selectForEntrada.innerHTML = '<option value="">Erro</option>'; // Adicionado
+        }
+    }
+
+    // Função para buscar materiais disponíveis (para retirada e entrada)
+    async function fetchMateriais() {
+        const selectMatRet = document.getElementById('retirada-material');
+        const selectMatEntrada = document.getElementById('entrada-material'); // Adicionado
+        
+        const populateSelect = async (selectElem) => {
+            if (!selectElem) return;
+            selectElem.innerHTML = '<option value="">Carregando...</option>';
+            try {
+                const url = `${getAppUrl('getMateriais')}?action=getMateriais`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Erro de rede.');
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+                selectElem.innerHTML = '<option value="">Selecione um material</option>';
+                data.forEach(mat => {
+                    if (mat) {
+                        const opt = document.createElement('option');
+                        opt.value = mat;
+                        opt.textContent = mat;
+                        selectElem.appendChild(opt);
+                    }
+                });
+            } catch (error) {
+                toast(`Erro ao carregar materiais: ${error.message}`, true);
+                selectElem.innerHTML = '<option value="">Erro</option>';
+            }
+        }
+
+        await populateSelect(selectMatRet);
+        await populateSelect(selectMatEntrada); // Adicionado
     }
 
     // Função para buscar abastecimentos
@@ -855,6 +977,160 @@
         btn.appendChild(sp);
     }
 
+    // Função para buscar estoque de carradas
+    async function fetchEstoqueCarradas() {
+        const list = document.getElementById('list-carradas');
+        const btn = document.getElementById('btn-fetch-estoque-carradas');
+        if (btn) showLoading(btn);
+        list.innerHTML = '<p>Carregando estoque...</p>';
+        try {
+            const url = `${getAppUrl('getEstoqueCarradas')}?action=getEstoqueCarradas`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Erro de rede.');
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
+            if (!data || data.length === 0) {
+                list.innerHTML = '<p>Nenhum estoque cadastrado.</p>';
+                return;
+            }
+            list.innerHTML = data.map(item => {
+                const inicial = parseFloat(item.carradasInicial || 0);
+                const restante = parseFloat(item.carradasRestantes || 0);
+                return `<div class="card">
+                            <div class="card-header"><div class="card-title">${item.fornecedor} - ${item.material}</div><div class="card-date">Saldo</div></div>
+                            <div class="card-row"><span class="card-label">Carradas Iniciais:</span><span>${inicial}</span></div>
+                            <div class="card-row"><span class="card-label">Carradas Restantes:</span><span>${restante}</span></div>
+                        </div>`;
+            }).join('');
+        } catch (error) {
+            list.innerHTML = `<p style="color:red;">Erro: ${error.message}</p>`;
+            toast('Erro ao carregar estoque', true);
+        } finally {
+            if (btn) hideLoading(btn);
+        }
+    }
+
+    // Função para buscar extrato de carradas
+    async function fetchExtratoCarradas() {
+        const list = document.getElementById('list-carradas');
+        const btn = document.getElementById('btn-fetch-extrato-carradas');
+        if (btn) showLoading(btn);
+        const start = document.getElementById('extrato-start-date').value;
+        const end = document.getElementById('extrato-end-date').value;
+        const fornecedor = document.getElementById('extrato-fornecedor-filter').value;
+        if (!start || !end) {
+            toast('Selecione período para extrato.', true);
+            if (btn) hideLoading(btn);
+            return;
+        }
+        list.innerHTML = '<p>Carregando extrato...</p>';
+        try {
+            const url = `${getAppUrl('getExtratoCarradas')}?action=getExtratoCarradas&startDate=${start}&endDate=${end}&fornecedor=${encodeURIComponent(fornecedor)}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Erro de rede.');
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
+            if (!data || data.length === 0) {
+                list.innerHTML = '<p>Nenhuma movimentação encontrada.</p>';
+                return;
+            }
+            list.innerHTML = data.map(item => {
+                const dataMov = new Date(item.data).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+                const qty = parseFloat(item.carradas || 0);
+                const motorista = item.motorista || '-';
+                const tipo = item.tipo || '';
+                return `<div class="card">
+                            <div class="card-header"><div class="card-title">${item.fornecedor} - ${item.material}</div><div class="card-date">${dataMov}</div></div>
+                            <div class="card-row"><span class="card-label">Carradas:</span><span>${qty}</span></div>
+                            <div class="card-row"><span class="card-label">Motorista:</span><span>${motorista}</span></div>
+                            <div class="card-row"><span class="card-label">Tipo:</span><span>${tipo}</span></div>
+                        </div>`;
+            }).join('');
+        } catch (error) {
+            list.innerHTML = `<p style="color:red;">Erro: ${error.message}</p>`;
+            toast('Erro ao carregar extrato', true);
+        } finally {
+            if (btn) hideLoading(btn);
+        }
+    }
+
+    // Submeter retirada manual de carradas
+    async function submitRetiradaCarradas() {
+        const form = document.getElementById('retirada-carradas-form');
+        const dataField = document.getElementById('retirada-data');
+        const fornecedorField = document.getElementById('retirada-fornecedor');
+        const materialField = document.getElementById('retirada-material');
+        const carradasField = document.getElementById('retirada-carradas');
+        const motoristaField = document.getElementById('retirada-motorista');
+        const dataVal = dataField.value;
+        const forn = fornecedorField.value;
+        const mat = materialField.value;
+        const carrVal = parseFloat(carradasField.value || 0);
+        const mot = motoristaField.value;
+        if (!dataVal || !forn || !mat || !carrVal) {
+            toast('Preencha todos os campos.', true);
+            return;
+        }
+        const payload = {
+            type: 'retiradaManual',
+            data: dataVal,
+            fornecedor: forn,
+            material: mat,
+            carradas: carrVal,
+            motorista: mot
+        };
+        toast('Registrando retirada...');
+        try {
+            await fetch(getAppUrl(payload.type), {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(payload)
+            });
+            toast('Retirada registrada!');
+            // Resetar formulário e recarregar estoque
+            form.reset();
+            fetchEstoqueCarradas();
+        } catch (error) {
+            toast('Erro ao registrar retirada', true);
+        }
+    }
+
+    // Submeter adição de saldo (entrada de carradas)
+    async function submitAdicionarSaldo() {
+        const form = document.getElementById('adicionar-saldo-form');
+        const dataField = document.getElementById('entrada-data');
+        const fornecedorField = document.getElementById('entrada-fornecedor');
+        const materialField = document.getElementById('entrada-material');
+        const carradasField = document.getElementById('entrada-carradas');
+        const dataVal = dataField.value;
+        const forn = fornecedorField.value;
+        const mat = materialField.value;
+        const carrVal = parseFloat(carradasField.value || 0);
+        if (!dataVal || !forn || !mat || !carrVal) {
+            toast('Preencha todos os campos.', true);
+            return;
+        }
+        const payload = {
+            type: 'entradaSaldo',
+            data: dataVal,
+            fornecedor: forn,
+            material: mat,
+            carradas: carrVal
+        };
+        toast('Adicionando saldo...');
+        try {
+            await fetch(getAppUrl(payload.type), {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(payload)
+            });
+            toast('Saldo adicionado!');
+            form.reset();
+            fetchEstoqueCarradas();
+        } catch (error) {
+            toast('Erro ao adicionar saldo', true);
+        }
+    }
     function hideLoading(btn) {
         if (!btn) return;
         btn.disabled = false;
@@ -864,9 +1140,11 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        // Carregar motoristas e vendedores ao iniciar
+        // Carregar motoristas, vendedores, fornecedores e materiais ao iniciar
         fetchMotoristas();
         fetchVendedores();
+        fetchFornecedores();
+        fetchMateriais();
         // Atualizar consultas quando trocar de caminhão
         document.getElementById('truck').addEventListener('change', () => {
             if (document.getElementById('sec-consultas').classList.contains('active')) {
@@ -889,7 +1167,81 @@
                     document.getElementById('list-consultas').innerHTML = '';
                     document.getElementById('summary-container').innerHTML = '';
                 }
+                // se sair de carradas, limpar listagem de carradas
+                if (sec !== 'carradas') {
+                    const carradasList = document.getElementById('list-carradas');
+                    if (carradasList) carradasList.innerHTML = '';
+                }
             });
+        });
+        // Configuração de seletor na seção de carradas
+        const carradasSelectors = {
+            'btn-select-estoque-carradas': { container: 'estoque-carradas-container', fetchFn: fetchEstoqueCarradas },
+            'btn-select-extrato-carradas': { container: 'filtros-extrato-carradas', fetchFn: fetchExtratoCarradas },
+            'btn-select-retirada-manual': { container: 'form-retirada-carradas', fetchFn: null },
+            'btn-select-adicionar-saldo': { container: 'form-adicionar-saldo', fetchFn: null }
+        };
+        Object.keys(carradasSelectors).forEach(btnId => {
+            const btnElem = document.getElementById(btnId);
+            if (btnElem) {
+                btnElem.addEventListener('click', (ev) => {
+                    // Alternar botões
+                    document.querySelectorAll('#sec-carradas .btn-selector').forEach(b => b.classList.remove('active'));
+                    ev.target.classList.add('active');
+                    // Esconder todos os sub-containers
+                    document.getElementById('estoque-carradas-container').style.display = 'none';
+                    document.getElementById('filtros-extrato-carradas').style.display = 'none';
+                    document.getElementById('form-retirada-carradas').style.display = 'none';
+                    document.getElementById('form-adicionar-saldo').style.display = 'none'; // Adicionado
+                    // Limpar listagens
+                    document.getElementById('list-carradas').innerHTML = '';
+                    const info = carradasSelectors[btnId];
+                    // Mostrar container selecionado
+                    document.getElementById(info.container).style.display = 'block';
+                    // Se for extrato, definir datas padrão (30 dias) se ainda não definidas
+                    if (btnId === 'btn-select-extrato-carradas') {
+                        const hojeC = new Date();
+                        const diasAtrasC = new Date();
+                        diasAtrasC.setDate(hojeC.getDate() - 30);
+                        const startEl = document.getElementById('extrato-start-date');
+                        const endEl = document.getElementById('extrato-end-date');
+                        if (!startEl.value || !endEl.value) {
+                            startEl.value = diasAtrasC.toISOString().split('T')[0];
+                            endEl.value = hojeC.toISOString().split('T')[0];
+                        }
+                    }
+                    // Se houver função de busca, executá-la
+                    if (info.fetchFn) info.fetchFn();
+                    // Se clicou em Retirada Manual, carregar listas de fornecedores, materiais e motoristas
+                    if (btnId === 'btn-select-retirada-manual') {
+                        fetchFornecedores();
+                        fetchMateriais();
+                        fetchMotoristas();
+                    }
+                    // Se clicou em Adicionar Saldo, carregar listas de fornecedores e materiais
+                    if (btnId === 'btn-select-adicionar-saldo') {
+                        fetchFornecedores();
+                        fetchMateriais();
+                    }
+                });
+            }
+        });
+        // Botões de busca para estoque e extrato
+        const btnFetchEstoque = document.getElementById('btn-fetch-estoque-carradas');
+        if (btnFetchEstoque) btnFetchEstoque.addEventListener('click', fetchEstoqueCarradas);
+        const btnFetchExtrato = document.getElementById('btn-fetch-extrato-carradas');
+        if (btnFetchExtrato) btnFetchExtrato.addEventListener('click', fetchExtratoCarradas);
+        // Submissão de retirada manual
+        const formRetirada = document.getElementById('retirada-carradas-form');
+        if (formRetirada) formRetirada.addEventListener('submit', (ev) => {
+            ev.preventDefault();
+            submitRetiradaCarradas();
+        });
+        // Submissão do formulário de adição de saldo
+        const formAdicionarSaldo = document.getElementById('adicionar-saldo-form');
+        if (formAdicionarSaldo) formAdicionarSaldo.addEventListener('submit', (ev) => {
+            ev.preventDefault();
+            submitAdicionarSaldo();
         });
         // Configuração dos botões de consulta
         const consultaSelectors = {
@@ -906,18 +1258,31 @@
                 document.getElementById(selector.filter).style.display = 'block';
                 document.getElementById('list-consultas').innerHTML = '';
                 document.getElementById('summary-container').innerHTML = '';
+                
+                // --- INÍCIO DA CORREÇÃO ---
                 // Ajustar datas padrão nos filtros de datas
                 if (selector.defaultDates) {
-                    const startInputId = btnId.replace('btn-select-', '') + '-start-date';
-                    const endInputId = btnId.replace('btn-select-', '') + '-end-date';
-                    if (!document.getElementById(startInputId).value || !document.getElementById(endInputId).value) {
+                    // CORREÇÃO: Usa o nome base correto para os IDs dos campos de data
+                    let baseId = btnId.replace('btn-select-', '');
+                    if (baseId === 'abastecimentos') baseId = 'abast'; // Ajusta para o ID correto 'abast'
+                    if (baseId === 'comissoes') baseId = 'comissao'; // Ajusta para o ID correto 'comissao'
+
+                    const startInputId = baseId + '-start-date';
+                    const endInputId = baseId + '-end-date';
+                    
+                    const startInput = document.getElementById(startInputId);
+                    const endInput = document.getElementById(endInputId);
+
+                    if (startInput && endInput && (!startInput.value || !endInput.value)) {
                         const hoje = new Date();
                         const diasAtras = new Date();
                         diasAtras.setDate(hoje.getDate() - selector.defaultDates);
-                        document.getElementById(endInputId).value = hoje.toISOString().split('T')[0];
-                        document.getElementById(startInputId).value = diasAtras.toISOString().split('T')[0];
+                        endInput.value = hoje.toISOString().split('T')[0];
+                        startInput.value = diasAtras.toISOString().split('T')[0];
                     }
                 }
+                // --- FIM DA CORREÇÃO ---
+
                 selector.fetchFn();
             });
         });
@@ -962,10 +1327,8 @@
                 valorVendido: parseFloat(document.getElementById('v-valor').value),
                 dataCadastro: isEditing ? document.getElementById('v-data-cadastro').value : getNow(),
                 material: document.getElementById('v-material').value,
-                valorDieselGasto: parseFloat(document.getElementById('v-diesel').value || 0),
-                valorParaEncher: parseFloat(document.getElementById('v-carga').value || 0),
-                gastoExtra: parseFloat(document.getElementById('v-extra').value || 0),
-                descricaoDespesas: document.getElementById('v-desc').value,
+                fornecedor: document.getElementById('v-fornecedor').value,
+                carradas: parseFloat(document.getElementById('v-carradas').value || 0),
                 motorista: document.getElementById('v-motorista').value,
                 valorComissao: parseFloat(document.getElementById('v-comissao').value || 0),
                 statusVenda: document.getElementById('v-status-venda').value,
