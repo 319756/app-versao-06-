@@ -225,7 +225,15 @@
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
+        /* Campo com erro fica em destaque vermelho */
+        .field.error input,
+        .field.error select {
+            border: 2px solid #ff5252 !important;
+        }
     </style>
+    <!-- Bibliotecas adicionais para exportar comissões -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -239,71 +247,202 @@
             </select>
         </div>
 
-        <div id="sec-vendas" class="section active">
-            <h2 class="form-title" id="venda-form-title">Registro de Venda</h2>
-            <form id="form-vendas">
-                <input type="hidden" id="v-row-number">
-                <input type="hidden" id="v-data-cadastro">
-                <div class="field">
-                    <label>Data da Venda</label>
-                    <input type="date" id="v-data" required>
-                </div>
-                <div class="row">
-                    <div class="field">
-                        <label>Cidade</label>
-                        <input type="text" id="v-cidade" required>
-                    </div>
-                    <div class="field">
-                        <label>Cliente</label>
-                        <input type="text" id="v-cliente" required>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="field">
-                        <label>Valor Vendido</label>
-                        <input type="number" id="v-valor" step="0.01" required>
-                    </div>
-                    <div class="field">
-                        <label>Material</label>
-                        <input type="text" id="v-material" required>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="field">
-                        <label>Fornecedor</label>
-                        <select id="v-fornecedor" required>
-                            <option value="">Carregando...</option>
-                        </select>
-                    </div>
-                    <div class="field">
-                        <label>Carradas</label>
-                        <input type="number" id="v-carradas" step="0.01" required>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="field">
-                        <label>Motorista</label>
-                        <select id="v-motorista" required><option value="">Carregando...</option></select>
-                    </div>
-                    <div class="field">
-                        <label>Valor da comissão</label>
-                        <input type="number" id="v-comissao" step="0.01">
-                    </div>
-                </div>
-                <div class="field">
-                    <label>Status da Venda</label>
-                    <select id="v-status-venda" required>
-                        <option value="PENDENTE">PENDENTE</option>
-                        <option value="PAGO">PAGO</option>
-                        <option value="ENTREGUE">ENTREGUE</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-venda" id="btn-gravar-venda">Gravar Venda</button>
-                <button type="button" class="btn" style="background:#777; margin-top:8px; display:none;" id="btn-cancelar-edicao-venda">Cancelar Edição</button>
-            </form>
-        </div>
+        <div id="sec-vendas" class="section">
+  <h2 class="form-title">Registro de Venda</h2>
+  <div id="v-loading" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,.6);backdrop-filter:blur(2px);z-index:9998;align-items:center;justify-content:center;font-weight:700;">
+    <div style="padding:12px 18px;border-radius:10px;background:#222;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.2)">Carregando...</div>
+  </div>
+  <form id="form-vendas">
+    <div class="field">
+      <label>Caminhão</label>
+      <select id="truck" required>
+        <option value="24280">Caminhão 24280</option>
+        <option value="DAF330">Caminhão DAF 330</option>
+      </select>
+    </div>
 
-        <div id="sec-abastecimento" class="section">
+    <div class="field"><label>Data da Venda</label><input type="date" id="v-data" required /></div>
+
+    <div class="row">
+      <div class="field"><label>Cidade</label><input id="v-cidade" placeholder="Ex: Arapiraca" required /></div>
+      <div class="field"><label>Cliente</label><input id="v-cliente" placeholder="Nome do cliente" required /></div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Fornecedor</label>
+        <select id="v-fornecedor" required><option value="">Carregando...</option></select>
+      </div>
+      <div class="field">
+        <label>Material</label>
+        <select id="v-material" required><option value="">Selecione o fornecedor primeiro</option></select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field"><label>Quantidade</label><input type="number" id="v-quantidade" min="1" value="1" required /></div>
+      <div class="field"><label>Valor Vendido (R$)</label><input type="number" id="v-valor" step="0.01" required /></div>
+    </div>
+
+    <div class="row">
+      <div class="field"><label>Valor do Carregamento (R$)</label><input type="number" id="v-carregamento" step="0.01" placeholder="0,00" required /></div>
+      <div class="field">
+        <label>Vendedor (Motorista)</label>
+        <select id="v-vendedor" required><option value="">Carregando...</option></select>
+      </div>
+    </div>
+
+    <div class="field"><label>Comissão (R$)</label><input type="number" id="v-comissao" step="0.01" placeholder="0,00" required /></div>
+
+    <div class="field"><label><input type="checkbox" id="v-fez-venda" /> O motorista fez a venda?</label></div>
+    <div id="venda-extra-fields" class="extra" style="display:none;">
+      <div class="field"><label>Comissão Extra (R$)</label><input type="number" id="v-comissao-extra" step="0.01" placeholder="0,00" /></div>
+    </div>
+
+    <div class="field"><label><input type="checkbox" id="v-has-extra" /> Houve gasto extra?</label></div>
+    <div id="extra-fields" class="extra" style="display:none;">
+      <div class="field"><label>Descrição do gasto extra</label><input id="v-desc-extra" placeholder="Ex: pedágio, manutenção..." /></div>
+      <div class="field"><label>Valor do gasto extra (R$)</label><input type="number" id="v-valor-extra" step="0.01" placeholder="0,00" /></div>
+    </div>
+
+    <button class="btn btn-venda" type="submit" id="btn-gravar-venda">Salvar Venda</button>
+  </form>
+</div>
+
+<script>
+// ===== Tela de Vendas (script isolado) =====
+(function vendasModule(){
+  const URL_APP = 'https://script.google.com/macros/s/AKfycbxakWO6ghbzug4KBP8b5jbTGepxaTvccVhaRFhTJyEItspj-oBkX0KeQXOl6tvFxl-L/exec';
+  const $ = (id)=>document.getElementById(id);
+  const on = (el,ev,fn)=>el&&el.addEventListener(ev,fn,{passive:true});
+  const showLoad = (b)=>{ const v=$('v-loading'); if(!v) return; v.style.display = b?'flex':'none'; };
+  function toast(msg, err){
+    let t = document.getElementById('toast');
+    if(!t){ t=document.createElement('div'); t.id='toast'; t.style.cssText='position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 14px;border-radius:8px;z-index:9999;display:none;'; document.body.appendChild(t); }
+    t.style.background = err ? '#c0392b' : '#333';
+    t.textContent = msg; t.style.display='block'; setTimeout(()=>t.style.display='none',2500);
+  }
+
+  async function apiGet(action, params){
+    const u = new URL(URL_APP);
+    u.searchParams.set('action', action);
+    if(params){ for(const k in params){ u.searchParams.set(k, params[k]); } }
+    u.searchParams.set('_ts', Date.now());
+    const r = await fetch(u.toString(), {method:'GET', cache:'no-store'});
+    const txt = await r.text();
+    try{ return JSON.parse(txt); }catch(e){ throw new Error('Resposta inválida: '+txt.slice(0,180)); }
+  }
+
+  async function carregarFornecedores(){
+    const sel = $('v-fornecedor'); sel.innerHTML = '<option value=\"\">Carregando...</option>';
+    showLoad(true);
+    try{
+      let data = await apiGet('getFornecedoresData');
+      if(Array.isArray(data)&&data.length&&data[0].id){
+        sel.innerHTML = '<option value=\"\">Selecione um fornecedor</option>';
+        data.forEach(f=> sel.innerHTML += `<option value="${f.id}|${f.nome}">${f.nome}</option>`);
+        return;
+      }
+      data = await apiGet('getFornecedores');
+      sel.innerHTML = '<option value=\"\">Selecione um fornecedor</option>';
+      data.forEach((nome,idx)=> sel.innerHTML += `<option value="F${idx+1}|${nome}">${nome}</option>`);
+    }catch(err){ toast('Erro fornecedores: '+err.message,true); sel.innerHTML='<option value=\"\">Erro</option>'; }
+    finally{ showLoad(false); }
+  }
+
+  async function carregarVendedores(){
+    const sel = $('v-vendedor'); sel.innerHTML = '<option value=\"\">Carregando...</option>';
+    try{
+      let data = await apiGet('getVendedoresData');
+      if(Array.isArray(data)&&data.length&&data[0].id){
+        sel.innerHTML = '<option value=\"\">Selecione</option>';
+        data.forEach(v=> sel.innerHTML += `<option value="${v.id}|${v.nome}">${v.nome}</option>`);
+        return;
+      }
+      data = await apiGet('getVendedores');
+      sel.innerHTML = '<option value=\"\">Selecione</option>';
+      data.forEach((nome,idx)=> sel.innerHTML += `<option value="V${String(idx+1).padStart(3,'0')}|${nome}">${nome}</option>`);
+    }catch(err){ toast('Erro vendedores: '+err.message,true); sel.innerHTML='<option value=\"\">Erro</option>'; }
+  }
+
+  async function carregarMateriaisDoFornecedor(){
+    const fornecedor = $('v-fornecedor').value;
+    const [idFornecedor] = fornecedor ? fornecedor.split('|') : [''];
+    const sel = $('v-material');
+    if(!idFornecedor){ sel.innerHTML = '<option value=\"\">Selecione o fornecedor primeiro</option>'; return; }
+    showLoad(true);
+    try{
+      let data = await apiGet('getMateriaisByFornecedor', { idFornecedor });
+      if(Array.isArray(data)&&data.length){
+        sel.innerHTML = '<option value=\"\">Selecione</option>';
+        data.forEach(m=> sel.innerHTML += `<option value="${(m.id||'')+'|'+m.nome}">${m.nome}</option>`);
+        return;
+      }
+      data = await apiGet('getMateriais');
+      sel.innerHTML = '<option value=\"\">Selecione</option>';
+      data.forEach((nome,idx)=> sel.innerHTML += `<option value="M${idx+1}|${nome}">${nome}</option>`);
+    }catch(err){ toast('Erro materiais: '+err.message,true); sel.innerHTML='<option value=\"\">Erro</option>'; }
+    finally{ showLoad(false); }
+  }
+
+  function addToggles(){
+    on($('v-has-extra'),'change', e=>{ $('extra-fields').style.display = e.target.checked ? 'block' : 'none'; });
+    on($('v-fez-venda'),'change', e=>{ $('venda-extra-fields').style.display = e.target.checked ? 'block' : 'none'; });
+    on(document,'change', e=>{ if(e.target && e.target.id==='v-fornecedor') carregarMateriaisDoFornecedor(); });
+  }
+
+  function handleSubmit(){
+    const form = $('form-vendas'); if(!form) return;
+    on(form,'submit', async (e)=>{
+      e.preventDefault();
+      const btn = $('btn-gravar-venda'); if(btn){ btn.disabled = true; btn.textContent = 'Salvando...'; }
+      showLoad(true);
+      const [idFornecedor, fornecedor] = (($('v-fornecedor').value)||'|').split('|');
+      const [idMaterial, material] = (($('v-material').value)||'|').split('|');
+      const [idVendedor, vendedor] = (($('v-vendedor').value)||'|').split('|');
+      const payload = {
+        type:'registrarVenda',
+        truck:$('truck').value,
+        dataVenda:$('v-data').value,
+        cidade:$('v-cidade').value,
+        cliente:$('v-cliente').value,
+        idFornecedor, fornecedor,
+        idMaterial, material,
+        quantidade:$('v-quantidade').value,
+        valorVendido:$('v-valor').value,
+        valorCarregamento:$('v-carregamento').value,
+        idVendedor, vendedor,
+        comissao:$('v-comissao').value,
+        fezVenda:$('v-fez-venda').checked,
+        comissaoExtra:$('v-comissao-extra').value||'0',
+        hasExtra:$('v-has-extra').checked,
+        descExtra:$('v-desc-extra').value||'',
+        valorExtra:$('v-valor-extra').value||'0',
+        dataCadastro:(new Date()).toLocaleString('pt-BR')
+      };
+      try{
+        await fetch(URL_APP,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)});
+        toast('Venda registrada com sucesso!');
+        form.reset();
+        const ef=$('extra-fields'); if(ef) ef.style.display='none';
+        const vf=$('venda-extra-fields'); if(vf) vf.style.display='none';
+      }catch(err){ toast('Erro ao salvar: '+err.message,true); }
+      finally{ if(btn){ btn.disabled=false; btn.textContent='Salvar Venda'; } showLoad(false); }
+    });
+  }
+
+  // Inicialização apenas uma vez (não toca no seu menu global)
+  document.addEventListener('DOMContentLoaded', function(){
+    try{
+      addToggles();
+      carregarFornecedores();
+      carregarVendedores();
+      handleSubmit();
+    }catch(e){ console.error(e); }
+  });
+})(); // ===== fim módulo vendas =====
+</script>
+<div id="sec-abastecimento" class="section">
             <h2 class="form-title" id="abast-form-title">Registro de Abastecimento</h2>
             <form id="form-abastecimento">
                 <input type="hidden" id="a-row-number">
@@ -364,6 +503,11 @@
                         </select>
                     </div>
                     <button id="btn-fetch-comissoes" class="btn btn-comissao">Buscar</button>
+                </div>
+                <!-- Botões de exportação para PDF e Imagem -->
+                <div id="export-comissoes-btns" style="display:none; margin-top:10px; display:flex; gap:10px;">
+                    <button id="btn-export-comissoes-pdf" type="button" class="btn btn-comissao" style="flex:1;">Exportar PDF</button>
+                    <button id="btn-export-comissoes-img" type="button" class="btn btn-comissao" style="flex:1;">Exportar Imagem</button>
                 </div>
             </div>
             <div id="summary-container"></div>
@@ -436,13 +580,58 @@
                     <button type="submit" class="btn btn-venda">Adicionar Saldo</button>
                 </form>
             </div>
-            <div id="list-carradas"></div>
+        <div id="list-carradas"></div>
         </div>
+        <!-- Início das novas seções para fornecedores, materiais e relacionamentos -->
+        <div id="sec-fornecedores" class="section">
+            <h2 class="form-title">Cadastro de Fornecedor</h2>
+            <form id="form-fornecedor">
+                <div class="field">
+                    <label>Nome do Fornecedor</label>
+                    <input type="text" id="f-nome" required>
+                </div>
+                <button type="submit" class="btn btn-venda">Salvar Fornecedor</button>
+            </form>
+        </div>
+        <div id="sec-materiais" class="section">
+            <h2 class="form-title">Cadastro de Material</h2>
+            <form id="form-material">
+                <div class="field">
+                    <label>Nome do Material</label>
+                    <input type="text" id="m-nome" required>
+                </div>
+                <button type="submit" class="btn btn-venda">Salvar Material</button>
+            </form>
+        </div>
+        <div id="sec-relacao" class="section">
+            <h2 class="form-title">Relacionar Fornecedor x Material</h2>
+            <form id="form-relacao">
+                <input type="hidden" id="rel-id">
+                <div class="row">
+                    <div class="field">
+                        <label>Fornecedor</label>
+                        <select id="rel-fornecedor" required></select>
+                    </div>
+                    <div class="field">
+                        <label>Material</label>
+                        <select id="rel-material" required></select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-venda" id="btn-salvar-relacao">Salvar</button>
+                <button type="button" class="btn" style="background:#777; margin-top:8px; display:none;" id="rel-cancel">Cancelar</button>
+            </form>
+            <div id="rel-list" style="margin-top:1rem;"></div>
+        </div>
+        <!-- Fim das novas seções -->
     </div> <div class="nav">
         <div class="nav-item active" data-sec="vendas"><i class="fas fa-shopping-cart"></i><span>Vendas</span></div>
         <div class="nav-item" data-sec="abastecimento"><i class="fas fa-gas-pump"></i><span>Abastecer</span></div>
         <div class="nav-item" data-sec="consultas"><i class="fas fa-search"></i><span>Consultas</span></div>
         <div class="nav-item" data-sec="comissoes"><i class="fas fa-hand-holding-usd"></i><span>Comissão</span></div>
+        <!-- Novos itens de navegação para cadastro e relação -->
+        <div class="nav-item" data-sec="fornecedores"><i class="fas fa-industry"></i><span>Fornecedores</span></div>
+        <div class="nav-item" data-sec="materiais"><i class="fas fa-cubes"></i><span>Materiais</span></div>
+        <div class="nav-item" data-sec="relacao"><i class="fas fa-link"></i><span>Relação</span></div>
         <div class="nav-item" data-sec="carradas"><i class="fas fa-box-open"></i><span>Carradas</span></div>
     </div>
     <div id="toast" class="toast"></div>
@@ -524,13 +713,21 @@
 
     function resetVendaForm() {
         document.getElementById('form-vendas').reset();
-        document.getElementById('v-row-number').value = '';
-        document.getElementById('v-data-cadastro').value = '';
-        // Resetar seletor de fornecedor e motorista
+        // Limpa identificador da linha para evitar conflitos
+        const rowInput = document.getElementById('v-row-number');
+        if (rowInput) rowInput.value = '';
+        // Alguns campos antigos podem não existir mais; verifique antes de limpar
+        const dataCadastro = document.getElementById('v-data-cadastro');
+        if (dataCadastro) dataCadastro.value = '';
         if (document.getElementById('v-fornecedor')) document.getElementById('v-fornecedor').value = '';
-        if (document.getElementById('v-carradas')) document.getElementById('v-carradas').value = '';
+        // Se houver campo de carradas antigo, limpe-o
+        const carr = document.getElementById('v-carradas');
+        if (carr) carr.value = '';
+        // Se houver campo quantidade novo, retorna ao valor padrão 1
+        const qtd = document.getElementById('v-quantidade');
+        if (qtd) qtd.value = '1';
         document.getElementById('venda-form-title').textContent = 'Registro de Venda';
-        document.getElementById('btn-gravar-venda').textContent = 'Gravar Venda';
+        document.getElementById('btn-gravar-venda').textContent = 'Salvar Venda';
         document.getElementById('btn-cancelar-edicao-venda').style.display = 'none';
     }
 
@@ -910,6 +1107,9 @@
             hideLoading(btn);
             return;
         }
+        // Esconde botões de exportação enquanto busca
+        const exportBtns = document.getElementById('export-comissoes-btns');
+        if (exportBtns) exportBtns.style.display = 'none';
         listContainer.innerHTML = '<p>Buscando comissões...</p>';
         summaryContainer.innerHTML = '';
         try {
@@ -924,6 +1124,8 @@
                 hideLoading(btn);
                 return;
             }
+            // Mostrar botões de exportação se houver resultados
+            if (exportBtns) exportBtns.style.display = 'flex';
             // calcular total de comissões
             const totalComissao = data.reduce((sum, item) => {
                 // Suporta camelCase (valorComissao) e minúsculo (valorcomissao)
@@ -1309,9 +1511,12 @@
                 if (deleteButton.dataset.comissao) handleDeleteComissaoClick(JSON.parse(deleteButton.dataset.comissao));
             }
         });
-        // Submissão de vendas
+        // Submissão de vendas (handler legado)
         document.getElementById('form-vendas').addEventListener('submit', async (e) => {
             e.preventDefault();
+            // Se existir o campo v-quantidade, estamos usando o fluxo simplificado.
+            // Nessa situação, ignoramos este handler antigo para evitar conflitos.
+            if (document.getElementById('v-quantidade')) return;
             const rowNumber = document.getElementById('v-row-number').value;
             const isEditing = !!rowNumber;
             const dataVenda = document.getElementById('v-data').value;
@@ -1409,6 +1614,385 @@
             }
         });
     });
+    /* ==================== Novas funcionalidades para o sistema de vendas ==================== */
+    // Variável global para manter o rowNumber da relação em edição
+    let currentRelRowNumber = null;
+
+    // Helpers para carregar dados
+    async function fetchSuppliersData() {
+        try {
+            const res = await fetch(`${getAppUrl('getFornecedoresData')}?action=getFornecedoresData`);
+            return await res.json();
+        } catch (err) {
+            toast('Erro ao carregar fornecedores', true);
+            return [];
+        }
+    }
+    async function fetchMaterialsList() {
+        try {
+            const res = await fetch(`${getAppUrl('getMateriaisList')}?action=getMateriaisList`);
+            return await res.json();
+        } catch (err) {
+            toast('Erro ao carregar materiais', true);
+            return [];
+        }
+    }
+    async function fetchMaterialsBySupplier(fornecedorId) {
+        if (!fornecedorId) return [];
+        try {
+            const res = await fetch(`${getAppUrl('getMateriaisByFornecedor')}?action=getMateriaisByFornecedor&idFornecedor=${fornecedorId}`);
+            return await res.json();
+        } catch (err) {
+            toast('Erro ao carregar materiais', true);
+            return [];
+        }
+    }
+    async function fetchRelacoesList() {
+        try {
+            const res = await fetch(`${getAppUrl('getRelacoes')}?action=getRelacoes`);
+            return await res.json();
+        } catch (err) {
+            toast('Erro ao carregar vínculos', true);
+            return [];
+        }
+    }
+    async function fetchVendasList() {
+        try {
+            const res = await fetch(`${getAppUrl('getVendasList')}?action=getVendasList`);
+            return await res.json();
+        } catch (err) {
+            toast('Erro ao carregar vendas', true);
+            return [];
+        }
+    }
+    function populateSelect(selectElem, items, emptyText) {
+        if (!selectElem) return;
+        selectElem.innerHTML = '';
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = emptyText || 'Selecione';
+        selectElem.appendChild(opt);
+        items.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = item.nome;
+            selectElem.appendChild(option);
+        });
+    }
+    async function loadFornecedores() {
+        const fornList = await fetchSuppliersData();
+        populateSelect(document.getElementById('v-fornecedor'), fornList, 'Selecione um fornecedor');
+        populateSelect(document.getElementById('rel-fornecedor'), fornList, 'Selecione um fornecedor');
+    }
+    async function loadMateriais() {
+        const mats = await fetchMaterialsList();
+        populateSelect(document.getElementById('rel-material'), mats, 'Selecione um material');
+    }
+    async function loadMaterialsForFornecedor(fornId) {
+        const mats = await fetchMaterialsBySupplier(fornId);
+        populateSelect(document.getElementById('v-material'), mats, mats.length ? 'Selecione um material' : 'Nenhum material');
+        populateSelect(document.getElementById('rel-material'), mats, mats.length ? 'Selecione um material' : 'Nenhum material');
+    }
+    async function loadRelacoes() {
+        const rels = await fetchRelacoesList();
+        const container = document.getElementById('rel-list');
+        container.innerHTML = '';
+        if (!rels || rels.length === 0) {
+            container.innerHTML = '<p>Nenhum vínculo cadastrado.</p>';
+            return;
+        }
+        container.innerHTML = rels.map(rel => {
+            const dataRel = JSON.stringify(rel).replace(/"/g, '&quot;');
+            return `<div class="card">
+                        <div class="card-header"><div class="card-title">${rel.fornecedor} - ${rel.material}</div></div>
+                        <div class="card-actions">
+                            <button class="btn btn-edit" data-rel='${dataRel}'><i class="fas fa-edit"></i> Editar</button>
+                            <button class="btn btn-delete" data-rel='${dataRel}'><i class="fas fa-trash"></i> Apagar</button>
+                        </div>
+                    </div>`;
+        }).join('');
+        // Eventos de edição e remoção
+        container.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const rel = JSON.parse(btn.dataset.rel);
+                currentRelRowNumber = rel.rowNumber;
+                document.getElementById('rel-fornecedor').value = rel.idFornecedor;
+                await loadMaterialsForFornecedor(rel.idFornecedor);
+                document.getElementById('rel-material').value = rel.idMaterial;
+                document.getElementById('rel-cancel').style.display = 'block';
+            });
+        });
+        container.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const rel = JSON.parse(btn.dataset.rel);
+                if (!confirm(`Deseja remover o vínculo ${rel.fornecedor} - ${rel.material}?`)) return;
+                try {
+                    await fetch(getAppUrl('deleteRelacao'), {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: JSON.stringify({ type: 'deleteRelacao', rowNumber: rel.rowNumber })
+                    });
+                    toast('Vínculo removido!');
+                    await loadRelacoes();
+                } catch (err) {
+                    toast('Erro ao remover vínculo', true);
+                }
+            });
+        });
+    }
+    async function loadVendas() {
+        const vendas = await fetchVendasList();
+        const container = document.getElementById('list-vendas');
+        container.innerHTML = '';
+        if (!vendas || vendas.length === 0) {
+            container.innerHTML = '<p>Nenhuma venda registrada.</p>';
+            return;
+        }
+        container.innerHTML = vendas.map(v => {
+            const dataVenda = v.data ? new Date(v.data).toLocaleDateString('pt-BR') : '';
+            const qtd = v.quantidade;
+            const val = parseFloat(v.valor || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+            const vendaJson = JSON.stringify(v).replace(/"/g, '&quot;');
+            return `<div class="card">
+                        <div class="card-header"><div class="card-title">${v.fornecedor} - ${v.material}</div><div class="card-date">${dataVenda}</div></div>
+                        <div class="card-row"><span class="card-label">Quantidade:</span><span>${qtd}</span></div>
+                        <div class="card-row"><span class="card-label">Valor:</span><span>${val}</span></div>
+                        <div class="card-actions">
+                            <button class="btn btn-edit" data-venda='${vendaJson}'><i class="fas fa-edit"></i> Editar</button>
+                            <button class="btn btn-delete" data-venda='${vendaJson}'><i class="fas fa-trash"></i> Apagar</button>
+                        </div>
+                    </div>`;
+        }).join('');
+        container.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const v = JSON.parse(btn.dataset.venda);
+                document.getElementById('v-row-number').value = v.rowNumber;
+                document.getElementById('v-data').value = v.data ? new Date(v.data).toISOString().split('T')[0] : '';
+                document.getElementById('v-fornecedor').value = v.fornecedor;
+                await loadMaterialsForFornecedor(v.fornecedor);
+                document.getElementById('v-material').value = v.material;
+                document.getElementById('v-quantidade').value = v.quantidade;
+                document.getElementById('v-valor').value = v.valor;
+                document.getElementById('btn-gravar-venda').textContent = 'Salvar Alterações';
+                document.getElementById('btn-cancelar-edicao-venda').style.display = 'block';
+            });
+        });
+        container.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const v = JSON.parse(btn.dataset.venda);
+                if (!confirm('Deseja excluir esta venda?')) return;
+                try {
+                    await fetch(getAppUrl('deleteVendaSimple'), {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: JSON.stringify({ type: 'deleteVendaSimple', rowNumber: v.rowNumber })
+                    });
+                    toast('Venda removida!');
+                    await loadVendas();
+                } catch (err) {
+                    toast('Erro ao remover venda', true);
+                }
+            });
+        });
+    }
+    // Evento para mudança do fornecedor no formulário de vendas
+    document.getElementById('v-fornecedor').addEventListener('change', async (ev) => {
+        const idF = ev.target.value;
+        if (!idF) {
+            populateSelect(document.getElementById('v-material'), [], 'Selecione um fornecedor');
+            return;
+        }
+        await loadMaterialsForFornecedor(idF);
+    });
+    // Cancelar edição de venda
+    document.getElementById('btn-cancelar-edicao-venda').addEventListener('click', () => {
+        document.getElementById('form-vendas').reset();
+        document.getElementById('v-row-number').value = '';
+        document.getElementById('btn-gravar-venda').textContent = 'Salvar Venda';
+        document.getElementById('btn-cancelar-edicao-venda').style.display = 'none';
+        document.getElementById('v-quantidade').value = '1';
+    });
+    // Submissão de venda
+    document.getElementById('form-vendas').addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const fieldsIds = ['v-data','v-fornecedor','v-material','v-quantidade','v-valor'];
+        let valid = true;
+        fieldsIds.forEach(fid => {
+            const el = document.getElementById(fid);
+            const wrapper = el.parentElement;
+            if (!el.value || el.value === '') {
+                wrapper.classList.add('error');
+                valid = false;
+            } else {
+                wrapper.classList.remove('error');
+            }
+        });
+        if (!valid) {
+            toast('Preencha todos os campos.', true);
+            return;
+        }
+        const isEditing = !!document.getElementById('v-row-number').value;
+        const payload = {
+            type: isEditing ? 'editVendaSimple' : 'addVenda',
+            data: document.getElementById('v-data').value,
+            fornecedor: document.getElementById('v-fornecedor').value,
+            material: document.getElementById('v-material').value,
+            quantidade: parseFloat(document.getElementById('v-quantidade').value),
+            valor: parseFloat(document.getElementById('v-valor').value)
+        };
+        if (isEditing) payload.rowNumber = parseInt(document.getElementById('v-row-number').value, 10);
+        toast(isEditing ? 'Salvando venda...' : 'Registrando venda...');
+        try {
+            await fetch(getAppUrl(payload.type), {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(payload)
+            });
+            toast(isEditing ? 'Venda atualizada!' : 'Venda registrada!');
+            document.getElementById('form-vendas').reset();
+            document.getElementById('v-row-number').value = '';
+            document.getElementById('v-quantidade').value = '1';
+            document.getElementById('btn-gravar-venda').textContent = 'Salvar Venda';
+            document.getElementById('btn-cancelar-edicao-venda').style.display = 'none';
+            await loadVendas();
+        } catch (err) {
+            toast('Erro ao salvar venda', true);
+        }
+    });
+    // Submissão de relação
+    document.getElementById('form-relacao').addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const idF = document.getElementById('rel-fornecedor').value;
+        const idM = document.getElementById('rel-material').value;
+        if (!idF || !idM) {
+            toast('Selecione fornecedor e material', true);
+            return;
+        }
+        const typeRel = currentRelRowNumber ? 'editRelacao' : 'addRelacao';
+        const payloadRel = { type: typeRel, idFornecedor: idF, idMaterial: idM };
+        if (currentRelRowNumber) payloadRel.rowNumber = currentRelRowNumber;
+        toast(currentRelRowNumber ? 'Salvando vínculo...' : 'Registrando vínculo...');
+        try {
+            await fetch(getAppUrl(typeRel), {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(payloadRel)
+            });
+            toast(currentRelRowNumber ? 'Vínculo atualizado!' : 'Vínculo registrado!');
+            currentRelRowNumber = null;
+            document.getElementById('rel-cancel').style.display = 'none';
+            document.getElementById('form-relacao').reset();
+            await loadRelacoes();
+        } catch (err) {
+            toast('Erro ao salvar vínculo', true);
+        }
+    });
+    // Cancelar edição de relação
+    document.getElementById('rel-cancel').addEventListener('click', () => {
+        currentRelRowNumber = null;
+        document.getElementById('form-relacao').reset();
+        document.getElementById('rel-cancel').style.display = 'none';
+    });
+    // Carrega dados iniciais para fornecedores, materiais, vínculos e vendas
+    loadFornecedores();
+    loadMateriais();
+    loadRelacoes();
+    loadVendas();
+
+    // Manipula o envio do formulário de cadastro de fornecedores
+    const formFornecedor = document.getElementById('form-fornecedor');
+    if (formFornecedor) {
+        formFornecedor.addEventListener('submit', async (ev) => {
+            ev.preventDefault();
+            const input = document.getElementById('f-nome');
+            const nome = input.value.trim();
+            if (!nome) {
+                input.parentElement.classList.add('error');
+                toast('Preencha o nome do fornecedor.', true);
+                return;
+            } else {
+                input.parentElement.classList.remove('error');
+            }
+            try {
+                await fetch(getAppUrl('addFornecedor'), {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ type: 'addFornecedor', nome: nome })
+                });
+                toast('Fornecedor registrado!');
+                formFornecedor.reset();
+                await loadFornecedores();
+            } catch (err) {
+                toast('Erro ao salvar fornecedor', true);
+            }
+        });
+    }
+
+    // Manipula o envio do formulário de cadastro de materiais
+    const formMaterial = document.getElementById('form-material');
+    if (formMaterial) {
+        formMaterial.addEventListener('submit', async (ev) => {
+            ev.preventDefault();
+            const input = document.getElementById('m-nome');
+            const nome = input.value.trim();
+            if (!nome) {
+                input.parentElement.classList.add('error');
+                toast('Preencha o nome do material.', true);
+                return;
+            } else {
+                input.parentElement.classList.remove('error');
+            }
+            try {
+                await fetch(getAppUrl('addMaterial'), {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ type: 'addMaterial', nome: nome })
+                });
+                toast('Material registrado!');
+                formMaterial.reset();
+                await loadMateriais();
+            } catch (err) {
+                toast('Erro ao salvar material', true);
+            }
+        });
+    }
+
+    // Exportar comissões para PDF ou imagem
+    async function exportComissoes(isPDF) {
+        const listElem = document.getElementById('list-consultas');
+        if (!listElem) return;
+        try {
+            const canvas = await html2canvas(listElem, { backgroundColor: '#fff' });
+            if (isPDF) {
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save('comissoes.pdf');
+            } else {
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'comissoes.png';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                });
+            }
+        } catch (err) {
+            toast('Erro ao exportar comissões', true);
+        }
+    }
+    const btnExportPdf = document.getElementById('btn-export-comissoes-pdf');
+    const btnExportImg = document.getElementById('btn-export-comissoes-img');
+    if (btnExportPdf && btnExportImg) {
+        btnExportPdf.addEventListener('click', () => exportComissoes(true));
+        btnExportImg.addEventListener('click', () => exportComissoes(false));
+    }
 </script>
 </body>
 </html>
